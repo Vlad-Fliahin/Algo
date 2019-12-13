@@ -44,12 +44,14 @@ pair<tree_node*, tree_node*> split(tree_node *root, int key) {
     {
         pair<tree_node*, tree_node*> splitted = split(root->right, key);
         root->right = splitted.first;
+        update(root);
         return make_pair(root, splitted.second);
     }
     else
     {
         pair<tree_node*, tree_node*> splitted = split(root->left, key - left_size - 1);
         root->left = splitted.second;
+        update(root);
         return make_pair(splitted.first, root);
     }
 }
