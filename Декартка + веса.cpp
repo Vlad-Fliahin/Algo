@@ -57,7 +57,7 @@ pair<tree_node*, tree_node*> split(tree_node *root, int key) {
 tree_node* merge(tree_node *left, tree_node *right) {
     if (left == nullptr || right == nullptr)
         return right == nullptr ? left : right;
-    if (left->key < right->key) {
+    if (left->priority < right->priority) {
         right->left = merge(left, right->left);
         update(right);
         return right;
