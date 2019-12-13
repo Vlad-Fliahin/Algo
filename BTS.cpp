@@ -1,59 +1,75 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
+const int INF = 1e18;
+
 struct tree_node {
     tree_node *left, *right;
-    int key;
+    int key, priority;
     
-    tree_node(int new_key) {
+    tree_node(int new_key)
+    {
         key = new_key;
+        priority = rand() % INF;
         left = right = nullptr;
     }
 };
 
-bool search(tree_node *v, int key) {
-    if (v == nullptr) return false;
-    if (v->key == key) return true;
-    if (key < v->key)
-        return search(v->left, key);
-    else
-        return search(v->right, key);
-}
-
-void insert(tree_node *&v, int key) {
-    if (v == nullptr) {
-        v = new tree_node(key);
-        return;
+pair<tree_node*, tree_node*> split(tree_node *root, int key) {
+    if (root == nullptr)
+        return make_pair(nullptr, nullptr);
+    if (root->key < key)
+    {
+        pair<tree_node*, tree_node*> splitted = split(root->right, key);
+        root->right = splitted.first;
+        return make_pair(root, splitted.second);
     }
-    if (key < v->key)
-        return insert(v->left, key);
     else
-        return insert(v->right, key);
-}
-
-tree_node getMin(tree_node *&v, tree_node *&p) {
-    if (v->left != nullptr)
-        return getMin(v->left, v);
-    else if (v->right == nullptr)
-        return *v;
-    else
-        p->left = v->right;
-        return *v;
-}
-
-void deylete(tree_node *&v, int key) {
-    if (v == nullptr) return;
-    if (v->key == key) {
-        tree_node t = getMin(v, v);
-        v->key = t.key;
-        return;
+    {
+        pair<tree_node*, tree_node*> splitted = split(root->left, key);
+        root->left = splitted.second;
+        return make_pair(splitted.first, root);
     }
-    if (key < v->key)
-        deylete(v->left, key);
+}
+
+tree_node* merge(tree_node *left, tree_node *right) {
+    if (left == nullptr || right == nullptr)
+        return right == nullptr ? left : right;
+    if (left->priority < right->priority) {
+        right->left = merge(left, right->left);
+        return right;
+    }
     else
-        deylete(v->right, key);
+    {
+        left->right = merge(left->right, right);
+        return left;
+    }
+}
+
+void insert(tree_node *&root, int key) {
+    pair<tree_node*, tree_node*> splitted = split(root, key);
+    root = merge(merge(splitted.first, new tree_node(key)), splitted.second);
+}
+
+void erase(tree_node *&root, int key) {
+//    assert(root == nullptr);
+//    if (root == nullptr) return;
+    if (root->key < key)
+        erase(root->right, key);
+    else if (root->key > key)
+        erase(root->left, key);
+    else
+        root = merge(root->left, root->right);
+}
+
+bool find(tree_node *root, int key) {
+    if (root == nullptr) return false;
+    if (root->key == key) return true;
+    if (root->key < key)
+        return find(root->right, key);
+    else
+        return find(root->left, key);
 }
 
 int main() {
@@ -62,16 +78,20 @@ int main() {
     string s;
     
     while (true) {
-        s = "0";
+        s = "";
         cin >> s >> key;
-        if(s == "0") break;
+        if(s == "") break;
         
-        if (s == "insert")
-            insert(node, key);
-        else if (s == "delete")
-            deylete(node, key);
-        else
-            search(node, key) ? cout << "true\n" : cout << "false\n";
+        if (s == "insert") {
+            if (!find(node, key)) {
+                insert(node, key);
+            }
+        } else if (s == "delete") {
+            if (find(node, key)) {
+                erase(node, key);
+            }
+        } else find(node, key) ? cout << "true\n" : cout << "false\n";
     }
+    
     return 0;
 }
