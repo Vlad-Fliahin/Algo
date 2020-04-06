@@ -1,0 +1,133 @@
+#pragma ggCC optimize("Ofast")
+ 
+# define _CRT_SECURE_NO_WARNINggS
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <stdio.h>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <immintrin.h>
+# include <cassert>
+# include <array>
+# include <tuple>
+# include <cctype>
+# include <unistd.h>
+# include <unordered_map>
+# include <unordered_set>
+
+using namespace std;
+
+typedef long long ll;
+
+tuple<int, int, int> gcd(int a, int b) {
+    if (b == 0)
+        return {1, 0, a};
+    int x, y, g;
+    tie(x, y, g) = gcd(b, a % b);
+    return {y, x - a/b * y, g};
+}
+
+ll modpow(ll x, ll n, ll m) {
+    if (n == 1)
+        return 1 % m;
+    ll u = modpow(x, n / 2, m);
+    u = (u*u) % m;
+    if (n % 2 == 1)
+        u = (u*x) % m;
+    return u;
+}
+
+ll** x = new ll*[2];
+ll** start = new ll*[2];
+
+ll** multy(ll** m1, ll** m2) {
+    ll** res = new ll*[2];
+    res[0] = new ll[2];
+    res[1] = new ll[2];
+    
+    for (ll i = 0; i < 2; ++i) {
+        for (ll j = 0; j < 2; ++j) {
+            res[i][j] = 0;
+        }
+    }
+    
+    for (ll i = 0; i < 2; ++i) {
+        for (ll j = 0; j < 2; ++j) {
+            for (ll k = 0; k < 2; ++k) {
+                res[i][j] += m1[i][k] * m2[k][j];
+            }
+        }
+    }
+    
+    return res;
+}
+
+ll** fib(ll n, ll** mat) {
+    if (n == 1) {
+        return x;
+    }
+    ll** u = fib(n / 2, mat);
+    if (n % 2 == 1)
+        return multy(u, multy(u, x));
+    return multy(u, u);
+}
+
+int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    ll n;
+    cin >> n;
+    
+    x[0] = new ll[2];
+    x[1] = new ll[2];
+    
+    x[0][0] = 0;
+    x[0][1] = x[1][0] = x[1][1] = 1;
+    
+    start[0] = new ll[0];
+    start[1] = new ll[0];
+    
+    start[0][0] = 0;
+    start[1][0] = 1;
+    
+    ll** res = fib(n, x);
+    
+    ll** ans = new ll*[2];
+    ans[0] = new ll[0];
+    ans[1] = new ll[0];
+    
+    ans[0][0] = ans[1][0] = 0;
+    
+    for (ll i = 0; i < 2; ++i) {
+        for (ll j = 0; j < 1; ++j) {
+            for (ll k = 0; k < 2; ++k) {
+                ans[i][j] += res[i][k] * start[k][j];
+            }
+        }
+    }
+    
+    cout << ans[0][0];
+    
+    return 0;
+}
