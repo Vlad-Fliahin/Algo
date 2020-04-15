@@ -119,13 +119,13 @@ class BBST {
     node* balance(node* p) // балансировка узла p
     {
         fixheight(p);
-        if( bfactor(p)==2 )
+        if(bfactor(p) == 2)
         {
-            if( bfactor(p->right) < 0 )
+            if(bfactor(p->right) < 0)
                 p->right = rotateright(p->right);
             return rotateleft(p);
         }
-        if( bfactor(p)==-2 )
+        if (bfactor(p) == -2)
         {
             if( bfactor(p->left) > 0  )
                 p->left = rotateleft(p->left);
@@ -136,8 +136,8 @@ class BBST {
 
     node* insert(node* p, int k) // вставка ключа k в дерево с корнем p
     {
-        if( !p ) return new node(k);
-        if( k<p->key )
+        if (!p) return new node(k);
+        if (k < p->key)
             p->left = insert(p->left,k);
         else
             p->right = insert(p->right,k);
@@ -179,12 +179,11 @@ class BBST {
     }
     bool search(int k, node* p) {
         if (k < p->key)
-            p->left = insert(p->left,k);
+            return search(k, p->left);
         else if (k > p->key)
-            p->right = insert(p->right,k);
+            return search(k, p->right);
         else
             return true;
-        return false;
     }
     bool isFull() {
         return false;
@@ -237,9 +236,84 @@ class BBST {
         
         return v;
     }
+    void print_Tree(node* p,int level)
+    {
+        if(p)
+        {
+            print_Tree(p->right, level + 1);
+            for (int i = 0; i < level; ++i) cout << "   ";
+            cout << p->key << "\n";
+            print_Tree(p->left, level + 1);
+        }
+    }
 };
 
 int main()
 {
     BBST bt;
+    
+    int n, k;
+    char c;
+    string opr = "";
+    
+    cout << "Insert number of operations: ";
+    cin >> n;
+    
+    cout << "Use \'1\' to add item, \'2\' to delete item, \'3\' to preorder, \'4\'to inorder, \n \'5\' to postorder, \'6\' for search, \'7\' for deleteEven, \'8\' to print tree\n";
+    
+    while (n --> 0) {
+        cin >> c;
+        
+        switch (c) {
+            case '1':
+                cout << "Insert key: ";
+                cin >> k;
+                bt.p = bt.insert(bt.p, k);
+                bt.inorder(bt.p);
+                cout << "\n";
+                break;
+            case '2':
+                cout << "Insert key: ";
+                cin >> k;
+                bt.p = bt.remove(bt.p, k);
+                bt.inorder(bt.p);
+                cout << "\n";
+                break;
+            case '3':
+                bt.preorder(bt.p);
+                cout << "\n";
+                break;
+            case '4':
+                bt.inorder(bt.p);
+                cout << "\n";
+                break;
+            case '5':
+                bt.postorder(bt.p);
+                cout << "\n";
+                break;
+            case '6':
+                cout << "Insert key: ";
+                cin >> k;
+                if (bt.search(k, bt.p)) {
+                    cout << "Exists\n";
+                } else {
+                    cout << "Doesn't esixt\n";
+                }
+                bt.inorder(bt.p);
+                cout << "\n";
+                break;
+            case '7':
+                bt.p = bt.deleteEven(bt.p);
+                bt.inorder(bt.p);
+                cout << "\n";
+                break;
+            case '8':
+                bt.print_Tree(bt.p, 0);
+                cout << "\n";
+                break;
+            default:
+                cout << "Incorrect input!\n";
+                break;
+        }
+    }
 }
