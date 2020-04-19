@@ -1,0 +1,71 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <cassert>
+# include <array>
+# include <tuple>
+
+typedef std::pair<int, int> pii;
+
+int MAXN = 1e6 + 7;
+
+int main()
+{
+    std::ios_base::sync_with_stdio(0);
+    std::cin.tie(0);
+    std::cout.tie(0);
+
+    int64_t n, m;
+    
+    std::cin >> n;
+
+    std::vector <int64_t> v(n);
+        
+    for (int i = 0; i < n; ++i) {
+        std::cin >> v[i];
+    }
+    
+    int64_t k = 1;
+    while ((1 << k) <= n)   ++k;
+    
+    int64_t st[n][k];
+
+    for (int64_t i = 0; i < n; i++)
+        st[i][0] = v[i];
+
+    for (int64_t j = 1; j <= k; j++)
+        for (int64_t i = 0; i + (1 << j) <= n; i++)
+            st[i][j] = std::min(st[i][j - 1], st[i + (1 << (j - 1))][j - 1]);
+    
+    std::cin >> m;
+    
+    for (int64_t i = 0; i < m; ++i) {
+        int64_t l, r;
+        std::cin >> l >> r;
+
+        int64_t j = 1;
+        while ((1 << j) <= r - l + 1)   ++j;
+        j--;
+        std::cout << std::min(st[l][j], st[r - (1 << j) + 1][j]) << "\n";
+    }
+}
