@@ -1,0 +1,102 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <cassert>
+# include <array>
+# include <tuple>
+
+typedef std::pair<int, int> pii;
+
+int timer = 0, n, l;
+std::vector <int> tin, tout;
+std::vector <std::vector <pii> > g;
+std::vector <std::vector <int> > up;
+
+std::vector <int64_t> weight;
+
+void dfs(int v, int p = 0) {
+    tin[v] = ++timer;
+    up[v][0] = p;
+    for (int i = 1; i <= l; ++i) {
+        up[v][i] = up[up[v][i - 1]][i - 1];
+    }
+    for (int i = 0; i < g[v].size(); ++i) {
+        int to = g[v][i].first;
+        if (to != p) {
+            weight[to] = weight[v] + g[v][i].second;
+            dfs(to, v);
+        }
+    }
+    tout[v] = ++timer;
+}
+
+bool upper(int a, int b) {
+    return tin[a] <= tin[b] && tout[a] >= tout[b];
+}
+
+int lca(int a, int b) {
+    if (upper(a, b))   return a;
+    if (upper(b, a))   return b;
+    for (int i = l; i >= 0; --i) {
+        if (!upper(up[a][i], b)) {
+            a = up[a][i];
+        }
+    }
+    return up[a][0];
+}
+
+int main()
+{
+    std::ios_base::sync_with_stdio(0);
+    std::cin.tie(0);
+    std::cout.tie(0);
+
+    int n, a, b, w;
+    std::cin >> n;
+
+    weight.resize(n + 10, 0);
+    g.resize(n + 10);
+    tin.resize(n + 10);
+    tout.resize(n + 10);
+    up.resize(n + 10);
+
+    for (int i = 0; i < n - 1; ++i) {
+        std::cin >> a >> b >> w;
+        g[a].push_back(std::make_pair(b, w));
+        g[b].push_back(std::make_pair(a, w));
+    }
+
+    l = 1;
+    while ((1 << l) <= n)   ++l;
+    for (int i = 0; i < up.size(); ++i) up[i].resize(l + 1);
+
+    dfs(0);
+
+    int m;
+    std::cin >> m;
+
+    while (m --> 0) {
+        std::cin >> a >> b;
+        std::cout << weight[a] + weight[b] - 2 * weight[lca(a, b)] << "\n";
+    }
+}
