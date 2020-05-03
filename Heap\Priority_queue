@@ -1,0 +1,280 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <stdio.h>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <immintrin.h>
+# include <cassert>
+# include <array>
+# include <tuple>
+# include <cctype>
+# include <unistd.h>
+# include <unordered_map>
+# include <unordered_set>
+//#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long ll;
+typedef long double ld;
+typedef pair<ll, ll> pll;
+typedef pair<int, int> pii;
+typedef pair<short, short> pss;
+ 
+#define pb push_back
+#define mp make_pair
+#define f first
+#define s second
+ 
+template <class T> inline T gcd(T a, T b) { while (b) { T t = a % b; a = b; b = t; } return a; }
+template <class T> inline T lcm(T a, T b) { return a * b / gcd(a, b); }
+
+class Heap {
+private:
+    vector <int> heap;
+public:
+    Heap() {
+        heap.resize(0);
+    }
+    bool isEmpty() {
+        return heap.size() == 0;
+    }
+    bool isFull() {
+        return false;
+    }
+    void print(int v = 0, int story = 0) {
+        string tab = "";
+        for (int i = 0; i < story; ++i)
+            tab += "    ";
+        
+        if (2*v + 2 < heap.size())
+            print(2*v + 2, story + 1);
+        cout << tab << heap[v] << "\n";
+        if (2*v + 1 < heap.size())
+            print(2*v + 1, story + 1);
+    }
+    int size() {
+        return (int)heap.size();
+    }
+    void sift_up(int v) {
+        if (v > 0 && heap[(v - 1) / 2] > heap[v]) {
+            swap(heap[(v - 1) / 2], heap[v]);
+            sift_up((v - 1) / 2);
+        }
+        return;
+    }
+    void sift_down(int v) {
+        if (2*v + 2 < heap.size()) {
+            int id = 2*v + 1, minimum = heap[2*v + 1];
+            if (heap[2*v + 2] < minimum) {
+                id = 2*v + 2;
+                minimum = heap[2*v + 2];
+            }
+            
+            if (heap[v] > minimum) {
+                swap(heap[id], heap[v]);
+                sift_down(id);
+            }
+            return;
+        }
+        if (2*v + 1 < heap.size() && heap[2*v + 1] < heap[v]) {
+            swap(heap[2*v + 1], heap[v]);
+            sift_down(2*v + 1);
+        }
+        return;
+    }
+    void insert(int key) {
+        heap.push_back(key);
+        if (!isEmpty())
+            sift_up((int)heap.size() - 1);
+    }
+    void heapify(vector <int> l) {
+        heap.resize(0);
+        for (auto key : l) {
+            insert(key);
+        }
+    }
+    int get_min() {
+        return heap[0];
+    }
+    void extract_min() {
+        heap[0] = heap.back();
+        heap.pop_back();
+        sift_down(0);
+    }
+    void heap_sort() {
+        while (!isEmpty()) {
+            cout << get_min() << " ";
+            extract_min();
+        }
+        cout << "\n";
+    }
+    void make_empty() {
+        heap.resize(0);
+    }
+};
+
+class PriorityQueue {
+private:
+    vector <pii> heap;
+public:
+    PriorityQueue() {
+        heap.resize(0);
+    }
+    bool isEmpty() {
+        return heap.size() == 0;
+    }
+    bool isFull() {
+        return false;
+    }
+    void print(int v = 0, int story = 0) {
+        string tab = "";
+        for (int i = 0; i < story; ++i)
+            tab += "       ";
+        
+        if (2*v + 2 < heap.size())
+            print(2*v + 2, story + 1);
+        cout << tab << "(" << heap[v].f << "," << heap[v].s << ")" << "\n";
+        if (2*v + 1 < heap.size())
+            print(2*v + 1, story + 1);
+    }
+    int size() {
+        return (int)heap.size();
+    }
+    void sift_up(int v) {
+        if (v > 0 && heap[(v - 1) / 2].f < heap[v].f) {
+            swap(heap[(v - 1) / 2], heap[v]);
+            sift_up((v - 1) / 2);
+        }
+        return;
+    }
+    void sift_down(int v) {
+        if (2*v + 2 < heap.size()) {
+            int id = 2*v + 1, maximum = heap[2*v + 1].f;
+            if (heap[2*v + 2].f > maximum) {
+                id = 2*v + 2;
+                maximum = heap[2*v + 2].f;
+            }
+            
+            if (heap[v].f < maximum) {
+                swap(heap[id], heap[v]);
+                sift_down(id);
+            }
+            return;
+        }
+        if (2*v + 1 < heap.size() && heap[2*v + 1].f > heap[v].f) {
+            swap(heap[2*v + 1], heap[v]);
+            sift_down(2*v + 1);
+        }
+        return;
+    }
+    void insert(int priority, int key) {
+        heap.push_back(mp(priority, key));
+        if (!isEmpty())
+            sift_up((int)heap.size() - 1);
+    }
+    void heapify(vector <pii> l) {
+        heap.resize(0);
+        for (auto p : l) {
+            insert(p.f, p.s);
+        }
+    }
+    int get_max() {
+        return heap[0].second;
+    }
+    void extract_max() {
+        heap[0] = heap.back();
+        heap.pop_back();
+        sift_down(0);
+    }
+    void make_empty() {
+        heap.resize(0);
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    Heap heap;
+    PriorityQueue priority_queue;
+    
+    vector <int> a = {11, 5, 2, 3, 6, 1, 4, 16, 33, 55, 105, 125};
+    vector <pii> b = {{1, 2}, {11, 5}, {2, 4}, {13, 42}, {14, 22}, {4, 16}, {7, 8}, {123, 4}, {133, 44}, {205, 144}};
+    
+    cout << "Minheap:\n";
+    heap.heapify(a);
+    heap.print();
+    cout << "Priority queue:\n";
+    priority_queue.heapify(b);
+    priority_queue.print();
+    
+    heap.make_empty();
+    priority_queue.make_empty();
+    
+    int t, oper, key, priority;
+    cout << "Insert quantity of actions: ";
+    cin >> t;
+    
+    while (t --> 0) {
+        cout << "\nPress 1 to insert element in minheap\n 2 to get minimum from minheap\n 3 to extract minimum from minheap\n 4 to print minheap in a tree - view\n 5 to insert element in priority_queue\n 6 to get maximum from priority_queue\n 7 to extract maximum from priority_queue\n 8 to print priority_queue in a tree - view\n";
+        cin >> oper;
+        switch (oper) {
+            case 1:
+                cout << "Insert key: ";
+                cin >> key;
+                heap.insert(key);
+                break;
+            case 2:
+                cout << "Actual minimum: " << heap.get_min() << "\n";
+                break;
+            case 3:
+                heap.extract_min();
+                break;
+            case 4:
+                cout << "Tree - view:\n";
+                heap.print();
+                break;
+            case 5:
+                cout << "Insert priority and key: ";
+                cin >> priority >> key;
+                priority_queue.insert(priority, key);
+                break;
+            case 6:
+                cout << "Actual maximum: " << priority_queue.get_max() << "\n";
+                break;
+            case 7:
+                priority_queue.extract_max();
+                break;
+            case 8:
+                cout << "Tree - view:\n";
+                priority_queue.print();
+                break;
+            default:
+                cout << "Incorrect command.\n";
+                break;
+        }
+    }
+    
+    return 0;
+}
