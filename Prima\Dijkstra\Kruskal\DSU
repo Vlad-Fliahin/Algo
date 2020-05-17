@@ -1,0 +1,294 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <stdio.h>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <immintrin.h>
+# include <cassert>
+# include <array>
+# include <tuple>
+# include <cctype>
+# include <unistd.h>
+# include <unordered_map>
+# include <unordered_set>
+//#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+typedef pair<ll, ll> pll;
+typedef pair<int, int> pii;
+typedef pair<short, short> pss;
+typedef vector <int> vii;
+typedef vector <ll> vll;
+ 
+#define pb push_back
+#define mp make_pair
+#define fir first
+#define sec second
+ 
+template <class T> inline T gcd(T a, T b) { while (b) { T t = a % b; a = b; b = t; } return a; }
+template <class T> inline T lcm(T a, T b) { return a * b / gcd(a, b); }
+
+const ld PI = 3.14159265359;
+const int INF = 1e9 + 7;
+
+class GraphWeighted {
+private:
+    int MAXN;
+    vector <pair<int, pii>> g;
+    vector <vector <pii>> graph;
+    vii parent;
+    vii size;
+public:
+    GraphWeighted(int MAXN) {
+        this->MAXN = MAXN;
+        graph.resize(MAXN);
+    }
+    
+    void insert(int i, int j, int w) {
+        g.push_back(mp(w, mp(i, j)));
+        graph[i].push_back(mp(j, w));
+        graph[j].push_back(mp(i, w));
+    }
+    
+    void printGraph(vector <vii> r) {
+        for (int i = 1; i < r.size(); ++i) {
+            cout << i << ": ";
+            for (int j = 0; j < r[i].size(); ++j) {
+                cout << r[i][j] << " ";
+            }
+            cout << "\n";
+        }
+    }
+    
+    void make_set(int v) {
+        parent[v] = v;
+        size[v] = 1;
+    }
+    
+    int find_set(int v) {
+        if (parent[v] == v)
+            return v;
+        
+        return parent[v] = find_set(parent[v]);
+    }
+    
+    void union_sets(int v1, int v2) {
+        int a = find_set(v1);
+        int b = find_set(v2);
+        
+        if (a != b) {
+            if (size[a] < size[b]) {
+                swap(a, b);
+            }
+            parent[b] = a;
+            size[a] += size[b];
+        }
+    }
+    
+    int Kruskal() {
+        parent.resize(MAXN);
+        size.resize(MAXN);
+        
+        int ans = 0;
+        sort(g.begin(), g.end());
+        
+        for (int i = 1; i < MAXN; ++i) {
+            make_set(i);
+        }
+        
+        vector <vii> gr(MAXN);
+        
+        for (int i = 0; i < g.size(); ++i) {
+            int v = g[i].second.first;
+            int to = g[i].second.second;
+            
+            int a = find_set(v);
+            int b = find_set(to);
+            
+            if (a != b) {
+                union_sets(a, b);
+                ans += g[i].first;
+                gr[v].push_back(to);
+                gr[to].push_back(v);
+            }
+        }
+        
+        printGraph(gr);
+        return ans;
+    }
+    
+    void Dijkstra(int start) {
+        vii p(MAXN);
+        vii d(MAXN, INF);
+        d[start] = 0;
+        p[start] = -1;
+        
+        set <pii> s;
+        s.insert(mp(0, start));
+        
+        while (!s.empty()) {
+            int v = s.begin()->second;
+            s.erase(s.begin());
+            
+            for (int i = 0; i < graph[v].size(); ++i) {
+                int to = graph[v][i].first;
+                int w = graph[v][i].second;
+                
+                if (d[v] + w < d[to]) {
+                    s.erase(mp(d[to], to));
+                    d[to] = d[v] + w;
+                    p[to] = v;
+                    s.insert(mp(d[to], to));
+                }
+            }
+        }
+        
+        vector <vii> gr(MAXN);
+        set <pii> st;
+        
+        for (int i = 1; i < graph.size(); ++i) {
+            if (i != start) {
+                int j = p[i], prev = i;
+                
+                while (true) {
+                    if (j == -1) {
+                        st.insert(mp(start, prev));
+                        st.insert(mp(prev, start));
+                        break;
+                    } else {
+                        st.insert(mp(j, prev));
+                        st.insert(mp(prev, j));
+                    }
+                    
+                    prev = j;
+                    j = p[j];
+                }
+            }
+        }
+        
+        for (auto edge : st) {
+            if (edge.first != edge.second)
+                gr[edge.first].push_back(edge.second);
+        }
+        
+        printGraph(gr);
+        
+        for (int i = 1; i < MAXN; ++i) {
+            cout << d[i] << " ";
+        }
+    }
+    
+    int Prima() {
+        vector <vii> r(MAXN);
+        vector <bool> used(MAXN);
+        vector <int> min_e(MAXN, INF), sel_e(MAXN, -1);
+        min_e[1] = 0;
+        
+        int ans = 0;
+        for (int i = 1; i < graph.size(); ++i) {
+            int v = -1;
+            
+            for (int j = 1; j < MAXN; ++j) {
+                if (!used[j] && (v == -1 || min_e[j] < min_e[v]))
+                    v = j;
+            }
+            
+            used[v] = true;
+            if (sel_e[v] != -1) {
+                ans += min_e[v];
+                r[v].push_back(sel_e[v]);
+                r[sel_e[v]].push_back(v);
+            }
+            
+            for (int j = 0; j < graph[v].size(); ++j) {
+                int to = graph[v][j].first;
+                int w = graph[v][j].second;
+                
+                if (!used[to] && w < min_e[to]) {
+                    min_e[to] = w;
+                    sel_e[to] = v;
+                }
+            }
+        }
+        
+        printGraph(r);
+        return ans;
+    }
+};
+
+int main() {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+    int q, oper, start, size;
+    cout << "Insert quantity of operations: ";
+    cin >> q;
+    
+    cout << "Insert number of vertices: ";
+    cin >> size;
+    vector <vii> g(size + 1);
+    GraphWeighted gw(size + 1);
+    
+    while (q --> 0) {
+        cout << "To insert an edge insert 1,\nTo run Kruskal algorithm insert 2,\nTo run Dijkstra algorithm insert 3,\nTo run Prima algorithm insert 4,\nTo print grapgh insert 5.\n";
+        cin >> oper;
+        
+        switch (oper) {
+            case 1:
+                cout << "Insert from, to and wheight. ";
+                int i, j, w;
+                cin >> i >> j >> w;
+                
+                g[i].push_back(j);
+                g[j].push_back(i);
+                gw.insert(i, j, w);
+                break;
+            case 2:
+                cout << "Weight of MST: \n" << gw.Kruskal() << "\n";
+                break;
+            case 3:
+                cout << "Insert start vertex: ";
+                cin >> start;
+                cout << "Minimum distance between start vertex and the other ones.\n";
+   
+                gw.Dijkstra(start);
+                cout << "\n";
+                break;
+            case 4:
+                cout << "Weight of MST: \n" << gw.Prima() << "\n";
+                break;
+            case 5:
+                cout << "Graph in adjacent-list representation.\n";
+                gw.printGraph(g);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    return 0;
+}
