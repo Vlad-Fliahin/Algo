@@ -1,0 +1,68 @@
+#include <iostream>
+#include <vector>
+
+std::vector <int_fast64_t> merge(std::vector <int_fast64_t> v) {
+    if (v.size() == 1) return v;
+    std::vector <int_fast64_t> a, t;
+    int_fast64_t p1 = 0, p2 = 0;
+
+    for (int_fast64_t i = 0; i < v.size() / 2; ++i) {
+        t.push_back(v[i]);
+    }
+    std::vector <int_fast64_t> l = merge(t);
+    t.clear();
+
+    for (int_fast64_t i = v.size() / 2; i < v.size(); ++i) {
+        t.push_back(v[i]);
+    }
+    std::vector <int_fast64_t> r = merge(t);
+    while (p1 < l.size() && p2 < r.size()) {
+        if (l[p1] < r[p2]) {
+            a.push_back(l[p1]);
+            ++p1;
+            continue;
+        }
+        if (l[p1] > r[p2]) {
+            a.push_back(r[p2]);
+            ++p2;
+            continue;
+        }
+        a.push_back(l[p1]);
+        ++p1;
+    }
+
+    if (p2 == r.size()) {
+        for (int_fast64_t i = p1; i < l.size(); ++i) {
+            a.push_back(l[i]);
+        }
+    } else {
+        for (int_fast64_t i = p2; i < r.size(); ++i) {
+            a.push_back(r[i]);
+        }
+    }
+
+    return a;
+}
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(0);
+    std::cout.tie(0);
+
+    int_fast64_t n;
+    std::cin >> n;
+
+    std::vector <int_fast64_t> arr(n);
+
+    for (int_fast64_t i = 0; i < n; ++i) {
+        std::cin >> arr[i];
+    }
+
+    std::vector <int_fast64_t> s = merge(arr);
+    
+    for(auto to : s) {
+        std::cout << to << " ";
+    }
+    std::cout << "\n";
+    return 0;
+}
