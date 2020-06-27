@@ -1,0 +1,112 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <stdio.h>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <immintrin.h>
+# include <cassert>
+# include <array>
+# include <tuple>
+# include <cctype>
+# include <unistd.h>
+# include <unordered_map>
+# include <unordered_set>
+//#include <bits/stdc++.h>
+
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define forx(i,x,n) for (int i = x; i < (n); i++)
+#define form(i, n) for (int i = n-1; i>=0; i--)
+#define all(x) (x).begin(), (x).end()
+#define sz(a) a.size()
+#define vi vector<int>
+#define vl vector<long long>
+#define pb push_back
+#define mp make_pair
+#define ll long long
+#define ull unsigned ll
+#define srt(a) sort(a.begin(), a.end());
+#define fi first
+#define pll pair<ll, ll>
+#define pii pair<int,int>
+#define se second
+
+using namespace std;
+
+template <class T> inline T gcd(T a, T b) { while (b) { T t = a % b; a = b; b = t; } return a; }
+template <class T> inline T lcm(T a, T b) { return a * b / gcd(a, b); }
+
+const ll MAXN = 1e6 + 7, MAX_OP = 3, PRIME_1 = 29, PRIME_2 = 31, MAX_ALPHABET = 26, INF = 1e9 + 7, MOD = 1e15 + 7, SIZE = 100, P = 5;
+
+ll sqr(ll a) {
+    return a * a;
+}
+
+ll bin_pow(ll a, ll n) {
+    ll res = 1;
+    while (n) {
+        if (n & 1)
+            res *= a;
+        a *= a;
+        n >>= 1;
+    }
+    return res;
+}
+
+// Write prefix_function
+vi prefix_function(string s) {
+    int n = s.size();
+    vi pi(n);
+    for (int i = 1; i < n; ++i) {
+        int k = pi[i - 1];
+        while (k > 0 && s[i] != s[k])
+            k = pi[k - 1];
+        if (s[i] == s[k])
+            ++k;
+        pi[i] = k;
+    }
+    return pi;
+}
+
+void solve() {
+    string s;
+    getline(cin, s);
+    
+    vi ans = prefix_function(s);
+    cout << *max_element(ans.begin(), ans.end());
+    return;
+}
+
+auto main() -> int {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+//    int t;
+//    cin >> t;
+//
+//    while (t --> 0) {
+//        solve();
+//    }
+    
+    solve();
+    return 0;
+}
