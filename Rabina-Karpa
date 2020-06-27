@@ -1,0 +1,124 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <stdio.h>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <immintrin.h>
+# include <cassert>
+# include <array>
+# include <tuple>
+# include <cctype>
+# include <unistd.h>
+# include <unordered_map>
+# include <unordered_set>
+//#include <bits/stdc++.h>
+
+#define forn(i, n) for (int i = 0; i < (n); i++)
+#define forx(i,x,n) for (int i = x; i < (n); i++)
+#define form(i, n) for (int i = n-1; i>=0; i--)
+#define all(x) (x).begin(), (x).end()
+#define sz(a) a.size()
+#define vi vector<int>
+#define vl vector<long long>
+#define pb push_back
+#define mp make_pair
+#define ll long long
+#define ull unsigned ll
+#define srt(a) sort(a.begin(), a.end());
+#define fi first
+#define pll pair<ll, ll>
+#define pii pair<int,int>
+#define se second
+
+using namespace std;
+
+template <class T> inline T gcd(T a, T b) { while (b) { T t = a % b; a = b; b = t; } return a; }
+template <class T> inline T lcm(T a, T b) { return a * b / gcd(a, b); }
+
+const ll MAXN = 1e6 + 7, MAX_OP = 3, PRIME_1 = 29, PRIME_2 = 31, MAX_ALPHABET = 26, INF = 1e9 + 7, MOD = 1e15 + 7, SIZE = 100, P = 5;
+
+ll sqr(ll a) {
+    return a * a;
+}
+
+ll bin_pow(ll a, ll n) {
+    ll res = 1;
+    while (n) {
+        if (n & 1)
+            res *= a;
+        a *= a;
+        n >>= 1;
+    }
+    return res;
+}
+
+pll hash_function(string s) {
+    ll hash_1 = 0, hash_2 = 0;
+    for (int i = 0; i < s.size(); ++i) {
+        hash_1 = hash_1 * PRIME_1 + s[i] - 'a' + 1;
+        hash_2 = hash_2 * PRIME_2 + s[i] - 'a' + 1;
+    }
+    return {hash_1, hash_2};
+}
+
+// Write Rabin_Karp
+vi Rabin_Karp(string text, string pattern) {
+    int n = text.size(), m = pattern.size();
+    pll hash_pattern = hash_function(pattern);
+    pll hash_in_text = hash_function(text.substr(0, m));
+    
+    vi ans;
+    for (int i = 0; i <= n - m; ++i) {
+        if (hash_in_text == hash_pattern)
+            ans.pb(i);
+        hash_in_text.first = hash_in_text.first * PRIME_1 - (text[i] - 'a' + 1) * bin_pow(PRIME_1, m) + (text[i + m] - 'a' + 1);
+        hash_in_text.second = hash_in_text.second * PRIME_2 - (text[i] - 'a' + 1) * bin_pow(PRIME_2, m) + (text[i + m] - 'a' + 1);
+    }
+    return ans;
+}
+
+void solve() {
+    string text, pattern;
+    cin >> text >> pattern;
+    
+    vi ans = Rabin_Karp(text, pattern);
+    for (auto x : ans) {
+        cout << x << " ";
+    }
+    return;
+}
+
+auto main() -> int {
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    
+//    int t;
+//    cin >> t;
+//
+//    while (t --> 0) {
+//        solve();
+//    }
+    
+    solve();
+    return 0;
+}
