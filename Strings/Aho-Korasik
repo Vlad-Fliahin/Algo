@@ -60,26 +60,32 @@ ll sqr(ll a) {
     return a * a;
 }
 
-// Write Trie
-struct node {
-    node *next_link[MAX_ALPHABET], *suff_link, *up_link, *children[MAX_ALPHABET], *parent;
-    bool is_terminal = false;
-    int strings;
-    char back_char;
+// Write prefix_function
+
+// Write z_function
+
+// Write ДКА/ Автомат КМП
+
+// Write Rabin_Karp
+
+// Write Aho-Korasik
+struct node{
+    node *next_links[MAX_ALPHABET], *parent, *suff_link, *up_link;
     string data;
+    bool is_terminal;
+    char back_char;
+    int strings;
     
-    node(node *p, char c) {
+    node (node *cur, char c) {
         for (int i = 0; i < MAX_ALPHABET; ++i) {
-            next_link[i] = nullptr;
-            children[i] = nullptr;
+            next_links[i] = nullptr;
         }
-        
         is_terminal = false;
         strings = 0;
-        parent = p;
+        data = "";
         back_char = c;
-        suff_link = nullptr;
-//        data = p->data + c;
+        parent = cur;
+        suff_link = up_link = nullptr;
     }
 };
 
@@ -87,50 +93,47 @@ node *root = new node(nullptr, 'a');
 
 void add(string s) {
     node *cur = root;
-    
-    for (int i = 0; i < s.size(); ++i) {
-        if (cur->next_link[s[i]] == nullptr)
-            cur->next_link[s[i]] = new node(cur, s[i]);
-        cur = cur->next_link[s[i]];
+    for (auto c : s) {
+        if (cur->next_links[c] == nullptr)
+            cur->next_links[c] = new node(cur, c);
+        cur = cur->next_links[c];
     }
     cur->is_terminal = true;
-    cur->strings += 1;
     cur->data = s;
+    cur->strings += 1;
 }
 
 node* get_next_link(node *cur, char c);
 
-node* get_suff_link(node *cur) { // Суфф ссылка
-    if (cur->suff_link == nullptr) {
+node* get_suff_link(node *cur) {
+    if (cur->suff_link == nullptr)
         if (cur == root || cur->parent == root)
             cur->suff_link = root;
         else
             cur->suff_link = get_next_link(get_suff_link(cur->parent), cur->back_char);
-    }
+    
     return cur->suff_link;
 }
 
-node* get_next_link(node *cur, char c) { // Переход по символу
-    if (cur->next_link[c] == nullptr) {
-        if (cur->children[c] != nullptr)
-            cur->next_link[c] = cur->children[c];
-        else if (cur == root)
-            cur->next_link[c] = root;
+node* get_next_link(node *cur, char c) {
+    if (cur->next_links[c] == nullptr)
+        if (cur == root)
+            cur->next_links[c] = root;
         else
-            cur->next_link[c] = get_next_link(get_suff_link(cur), c);
-    }
-    return cur->next_link[c];
+            cur->next_links[c] = get_next_link(get_suff_link(cur), c);
+    
+    return cur->next_links[c];
 }
 
-node* get_up_link(node *cur) { // Сжатая суфф ссылка
-    if (cur->up_link == nullptr) {
-        if ((get_suff_link(cur))->is_terminal)
+node* get_up_link(node* cur) {
+    if (cur->up_link == nullptr)
+        if (get_suff_link(cur)->is_terminal)
             cur->up_link = get_suff_link(cur);
         else if (get_suff_link(cur) == root)
             cur->up_link = root;
         else
             cur->up_link = get_up_link(get_suff_link(cur));
-    }
+    
     return cur->up_link;
 }
 
@@ -139,12 +142,12 @@ vector<string> contain(string s) {
     node *cur = root;
     for (auto c : s) {
         cur = get_next_link(cur, c);
-        node *up_node = cur;
-    
-        while (up_node != root) {
-            if (up_node->is_terminal)
-                ans.pb(up_node->data);
-            up_node = get_up_link(up_node);
+        node* up_link = cur;
+        
+        while (up_link != root) {
+            if (up_link->is_terminal)
+                ans.pb(up_link->data);
+            up_link = get_up_link(up_link);
         }
     }
     return ans;
@@ -177,6 +180,13 @@ auto main() -> int {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
+    
+//    int t;
+//    cin >> t;
+//
+//    while (t --> 0) {
+//        solve();
+//    }
     
     solve();
     return 0;
