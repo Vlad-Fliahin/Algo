@@ -1,0 +1,95 @@
+# include <iostream>
+# include <cmath>
+# include <algorithm>
+# include <cstdint>
+# include <cstring>
+# include <string>
+# include <cstdlib>
+# include <vector>
+# include <bitset>
+# include <map>
+# include <queue>
+# include <ctime>
+# include <stack>
+# include <set>
+# include <list>
+# include <random>
+# include <deque>
+# include <functional>
+# include <iomanip>
+# include <sstream>
+# include <fstream>
+# include <complex>
+# include <numeric>
+# include <cassert>
+# include <array>
+# include <tuple>
+
+const int MAXN = 1010, INF = INT32_MAX;
+
+int n, L;
+int t[4*MAXN][4*MAXN], a[MAXN][MAXN];
+
+void build_y(int vx, int lx, int rx, int vy, int ly, int ry) {
+    if (ly == ry) {
+        if (lx == rx)
+            t[vx][vy] = a[lx][ly];
+        else
+            t[vx][vy] = std::min(t[2*vx][vy], t[2*vx + 1][vy]);
+    } else {
+        int my = (ly + ry) / 2;
+        build_y(vx, lx, rx, 2*vy, ly, my);
+        build_y(vx, lx, rx, 2*vy + 1, my + 1, ry);
+        t[vx][vy] = std::min(t[vx][2*vy], t[vx][2*vy + 1]);
+    }
+}
+
+void build_x(int vx, int lx, int rx) {
+    if (lx != rx) {
+        int mx = (lx + rx) / 2;
+        build_x(2*vx, lx, mx);
+        build_x(2*vx + 1, mx + 1, rx);
+    }
+    build_y(vx, lx, rx, 1, 0, n - 1);
+}
+
+int min_y(int vx, int vy, int tly, int try_, int ly, int ry) {
+    if (ly > ry)
+        return INF;
+    if (ly == tly && try_ == ry)
+        return t[vx][vy];
+    int tmy = (tly + try_) / 2;
+    return std::min(min_y(vx, 2*vy, tly, tmy, ly, std::min(ry, tmy)),
+                min_y(vx, 2*vy + 1, tmy + 1, try_, std::max(ly, tmy + 1), ry));
+}
+
+int min_x(int vx, int tlx, int trx, int lx, int rx, int ly, int ry) {
+    if (lx > rx)
+        return INF;
+    if (tlx == lx && trx == rx)
+        return min_y(vx, 1, 0, n - 1, ly, ry);
+    int tmx = (tlx + trx) / 2;
+    return std::min(min_x(2*vx, tlx, tmx, lx, std::min(tmx, rx), ly, ry),
+           min_x(2*vx + 1, tmx + 1, trx, std::max(tmx + 1, lx), rx, ly, ry));
+}
+
+int main()
+{
+    std::ios_base::sync_with_stdio(0);
+    std::cin.tie(0);
+    std::cout.tie(0);
+
+    std::cin >> n >> L;
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            std::cin >> a[i][j];
+
+    build_x(1, 0, n - 1);
+
+    for (int i = 0; i + L - 1 < n; ++i) {
+        for (int j = 0; j + L - 1 < n; ++j) {
+            std::cout << min_x(1, 0, n - 1, i, i + L - 1, j, j + L - 1) << " ";
+        }
+        std::cout << "\n";
+    }
+}
