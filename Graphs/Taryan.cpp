@@ -14,8 +14,8 @@ struct vertex {
 
 std::vector <std::vector<std::pair<int, int>>> g(MAXN);
 std::vector <std::vector<std::pair<int, int>>> queries(MAXN);
-std::vector <ll> answers;
 std::vector <vertex> vertexes(MAXN);
+std::vector <ll> answers;
 
 int n, m;
 int ancestor[MAXN], p[MAXN], size[MAXN];
