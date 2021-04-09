@@ -6,8 +6,8 @@ const int MAXN = 105;
 int n, m, a, b;
 char wall[MAXN][MAXN];
 std::vector<int> g[MAXN * MAXN];
-std::vector<int> mt;
 std::vector<char> used;
+std::vector<int> mt;
 
 int try_kuhn(int v) {
     if (used[v]) return false;
