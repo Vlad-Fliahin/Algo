@@ -1,7 +1,5 @@
 #include <iostream>
-#include <cstring>
 #include <vector>
-#include <queue>
 
 const int MAXN = 50005;
 const int MAXLIST = 2 * MAXN;
