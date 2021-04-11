@@ -1,117 +1,81 @@
-# include <iostream>
-# include <cmath>
-# include <algorithm>
-# include <cstdint>
-# include <cstring>
-# include <string>
-# include <cstdlib>
-# include <vector>
-# include <bitset>
-# include <map>
-# include <queue>
-# include <ctime>
-# include <stack>
-# include <set>
-# include <list>
-# include <random>
-# include <deque>
-# include <functional>
-# include <iomanip>
-# include <sstream>
-# include <fstream>
-# include <complex>
-# include <numeric>
-# include <cassert>
-# include <array>
-# include <tuple>
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <queue>
 
-const int MAXN = 200200, LOGN = 18;
-int n, m, a, b, k;
-int st[LOGN][MAXN];
-int first[MAXN], logs[MAXN];
-std::vector <int> order, depth;
-std::vector <std::vector <int> > g(MAXN);
+const int MAXN = 50005;
+const int MAXLIST = 2 * MAXN;
+const int MAXLIST_LOGN = 17;
 
-void dfs(int v, int h) {
-    first[v] = order.size();
-    depth.push_back(h);
-    order.push_back(v);
+int n, m;
+int a_pos[MAXN], h[MAXN];
+std::vector<int> a;
+std::vector<int> g[MAXN];
+int st[MAXLIST_LOGN][MAXLIST];
+int logs[MAXLIST];
 
+void dfs(int v, int curh) {
+    h[v] = curh;
+    a_pos[v] = a.size();
+    a.push_back(v);
     for (auto to : g[v]) {
-        dfs(to, h + 1);
-        order.push_back(v);
-        depth.push_back(h);
+        dfs(to, curh + 1);
+        a.push_back(v);
     }
 }
 
-int lca(int u, int v) {
-    int l = first[u], r = first[v];
+int min_h(int i, int j) {
+    return h[a[i]] < h[a[j]] ? i : j;
+}
 
+int get_lca(int v1, int v2) {
+    int l = a_pos[v1], r = a_pos[v2];
     if (l > r)
         std::swap(l, r);
-
-    int p = logs[r - l + 1];
-
-    if (((r - l + 1) & (r - l)) == 0) {
-        return order[st[logs[r - l + 1]][l]];
-    } else {
-        if (depth[st[p][l]] < depth[st[p][r - (1 << p) + 1]]) {
-            return order[st[p][l]];
-        } else {
-            return order[st[p][r - (1 << p) + 1]];
-        }
-    }
+    int pw2 = logs[r - l + 1];
+    int ans1 = st[pw2][l];
+    int ans2 = st[pw2][r - (1 << pw2) + 1];
+    int ans = min_h(ans1, ans2);
+    return a[ans];
 }
 
 int main()
 {
-    std::ios_base::sync_with_stdio(0);
-    std::cin.tie(0);
-    std::cout.tie(0);
-
-    int p = 1;
-    for (int i = 2; i < MAXN; ++i) {
-        if (i == (1 << (p + 1)))
-            ++p;
-        logs[i] = p;
-    }
-
-    std::cin >> n >> m;
-
-    for (int i = 1; i < n; ++i) {
-        std::cin >> p;
-        g[p].push_back(i);
+    std::cin >> n;
+    for (int i = 1, parent; i < n; ++i) {
+        std::cin >> parent;
+        g[parent - 1].push_back(i);
     }
 
     dfs(0, 0);
 
-    for (int i = 0; i < depth.size(); ++i) {
+    for (int i = 2, p = 0; i < MAXLIST; ++i) {
+        if (1 << (p + 1) == i)
+            ++p;
+        logs[i] = p;
+    }
+
+    int sz = a.size();
+
+    for (int i = 0; i < sz; ++i) {
         st[0][i] = i;
     }
 
-    for (int i = 1; i <= logs[depth.size()]; ++i) {
-        for (int j = 0; j + (1 << i) <= depth.size(); ++j) {
-            int l = st[i - 1][j], r = st[i - 1][j + (1 << (i - 1))];
-            if (depth[l] <= depth[r])
-                st[i][j] = l;
+    for (int i = 1; i <= logs[sz]; ++i) {
+        for (int j = 0; j < sz; ++j) {
+            int nj = j + (1 << (i - 1));
+            if (nj < sz)
+                st[i][j] = min_h(st[i - 1][j], st[i - 1][nj]);
             else
-                st[i][j] = r;
+                st[i][j] = st[i - 1][j];
         }
     }
 
-    int a1, a2, x, y, z;
-    std::cin >> a1 >> a2 >> x >> y >> z;
-
-    int64_t summary = 0;
-    int ans = 0;
-
-    for (int i = 0; i < m; ++i) {
-        ans = lca((a1 + ans) % n, a2);
-        summary += ans;
-
-        a1 = (1ll*x*a1 + 1ll*y*a2 + z) % n;
-        a2 = (1ll*x*a2 + 1ll*y*a1 + z) % n;
+    std::cin >> m;
+    for (int i = 0, v1, v2; i < m; ++i) {
+        std::cin >> v1 >> v2;
+        --v1; --v2;
+        int lca = get_lca(v1, v2);
+        std::cout << lca + 1 << '\n';
     }
-
-    std::cout << summary << '\n';
 }
