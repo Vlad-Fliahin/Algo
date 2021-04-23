@@ -1,92 +1,83 @@
 #include <iostream>
+#include <cstring>
 #include <vector>
-#include <unordered_map>
+#include <queue>
 
-#define ll int64_t
-
-const int MAXN = 150005;
-
-struct vertex {
-    int parent = 0;
-    bool used = false;
-    ll weight = 0;
-};
-
-std::vector <std::vector<std::pair<int, int>>> g(MAXN);
-std::vector <std::vector<std::pair<int, int>>> queries(MAXN);
-std::vector <vertex> vertexes(MAXN);
-std::vector <ll> answers;
+const int MAXN = 50005;
 
 int n, m;
-int ancestor[MAXN], p[MAXN], size[MAXN];
+int p[MAXN], sz[MAXN], ancestor[MAXN];
+bool used[MAXN];
+std::vector<int> g[MAXN];
+std::vector<std::pair<int, int>> q[MAXN];
+int query[MAXN];
 
 void make_set(int v) {
     p[v] = v;
     ancestor[v] = v;
+    sz[v] = 1;
 }
 
-int find_parent(int v) {
+int find_set(int v) {
     if (p[v] == v)
         return v;
-    return p[v] = find_parent(p[v]);
+    return p[v] = find_set(p[v]);
 }
 
-void union_sets(int v, int u) {
-    int a = find_parent(v);
-    int b = find_parent(u);
+void union_set(int a, int b) {
+    a = find_set(a);
+    b = find_set(b);
     if (a != b) {
-        if (size[a] < size[b])
+        if (sz[a] < sz[b])
             std::swap(a, b);
-        size[a] += b;
+        sz[a] += sz[b];
         p[b] = a;
     }
 }
 
 void dfs(int v) {
-    vertexes[v].used = true;
     make_set(v);
-    for (auto [to, w] : g[v]) {
-        if (!vertexes[to].used) {
-            vertexes[to].parent = v;
-            vertexes[to].weight = vertexes[v].weight + w;
-            dfs(to);
-
-            union_sets(v, to);
-            ancestor[find_parent(v)] = v;
-        }
+    for (auto to : g[v]) {
+        dfs(to);
+        union_set(v, to);
+        ancestor[find_set(v)] = v;
     }
 
-    for (auto [u, i] : queries[v]) {
-        if (vertexes[u].used) {
-            int lca = ancestor[find_parent(u)];
-            answers[i] = vertexes[u].weight +
-                         vertexes[v].weight -
-                         2*vertexes[lca].weight;
+    for (auto to_id : q[v]) {
+        auto to = to_id.first;
+        auto id = to_id.second;
+        if (used[to]) {
+            query[id] = ancestor[find_set(to)];
         }
     }
+    used[v] = true;
 }
 
 int main()
 {
     std::cin >> n;
-    for (int i = 1, u, v, w; i < n; ++i) {
-        std::cin >> u >> v >> w;
-        g[u].push_back(std::make_pair(v, w));
-        g[v].push_back(std::make_pair(u, w));
+    for (int i = 1, parent; i < n; ++i) {
+        std::cin >> parent;
+        g[parent - 1].push_back(i);
     }
 
     std::cin >> m;
-    for (int i = 0, u, v; i < m; ++i) {
-        std::cin >> u >> v;
-        queries[u].push_back(std::make_pair(v, i));
-        queries[v].push_back(std::make_pair(u, i));
+    for (int i = 0, v1, v2; i < m; ++i) {
+        std::cin >> v1 >> v2;
+        --v1; --v2;
+
+        if (v1 == v2) {
+            query[i] = v1;
+        }
+        else {
+            q[v1].push_back(std::make_pair(v2, i));
+            q[v2].push_back(std::make_pair(v1, i));
+        }
     }
 
-    answers = std::vector<ll>(m);
     dfs(0);
-
-    for (auto len : answers)
-        std::cout << len << '\n';
-
-    return 0;
+    
+    for (int i = 0; i < m; ++i) {
+        std::cout << query[i] + 1 << '\n';
+    }
 }
