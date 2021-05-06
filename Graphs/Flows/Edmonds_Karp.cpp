@@ -48,7 +48,7 @@ ll bfs() {
     return c_min[t];
 }
 
-void solve() {
+void Edmonds_Karp() {
     ll max_flow = 0;
     while (true) {
         memset(used, false, sizeof(used));
@@ -76,7 +76,7 @@ int main() {
 
     s = 0;
     t = n - 1;
-    solve();
+    Edmonds_Karp();
 }
 
 /*
