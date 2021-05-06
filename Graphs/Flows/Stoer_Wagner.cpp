@@ -9,7 +9,7 @@ ll n, m, g[MAXN][MAXN];
 ll best_cost = 1e18;
 std::vector<ll> best_cut;
 
-void min_cut() {
+void Stoer_Wagner() {
     std::vector<ll> v[MAXN];
     for (ll i = 0; i < n; ++i)
         v[i].assign(1, i);
@@ -62,5 +62,5 @@ int main() {
         g[b][a] += wi;
     }
 
-    min_cut();
+    Stoer_Wagner();
 }
