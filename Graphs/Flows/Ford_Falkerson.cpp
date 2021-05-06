@@ -33,7 +33,7 @@ ll dfs(ll v = s, ll c_min = INF) {
     return 0;
 }
 
-void solve() {
+void Ford_Falkerson() {
     ll max_flow = 0;
     while (true) {
         memset(used, false, sizeof(used));
@@ -62,7 +62,7 @@ int main() {
 
     s = 0;
     t = n - 1;
-    solve();
+    Ford_Falkerson();
 }
 
 /*
